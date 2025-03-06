@@ -148,9 +148,9 @@ def get_cropped_image(
         np.ndarray: The resized (and possibly projected) image."""
 
     if projection in [0, 1, 2]:
-        return ADJUST_IMAGE_SIZE(image_T, center, target_image_shape).max(projection)
+        return adjust_image_size(image_T, center, target_image_shape).max(projection)
     elif projection == -1:
-        return ADJUST_IMAGE_SIZE(image_T, center, target_image_shape)
+        return adjust_image_size(image_T, center, target_image_shape)
     else:
         raise Exception(f"projection is not 0, 1, 2, but {projection}")
 
@@ -209,6 +209,8 @@ def extract_all_problems(dataset_name: str, problem_file_path: str) -> None:
         lines = open(f"{problem_file_path}/registration_problems.txt", "r").readlines()
         problems = [line.strip().replace(" ", "to") for line in lines]
     else:
-        raise FileNotFoundError(f"Can't find {dataset_path}/registration_problems.txt")
+        raise FileNotFoundError(
+            f"Can't find {problem_file_path}/registration_problems.txt"
+        )
 
     write_to_json({"train": {dataset_name: problems}}, "registration_problems")

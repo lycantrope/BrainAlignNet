@@ -76,7 +76,7 @@ class EulerRegistrationProcessor:
         """Initialize memory dictory for storing Euler-GPU parameters."""
 
         x_dim, y_dim, z_dim = self.target_image_shape
-        z_translation_range = range(-z_dim, z_dim)
+        # z_translation_range = range(-z_dim, z_dim)
         x_translation_range_xy = np.sort(
             np.concatenate(
                 (

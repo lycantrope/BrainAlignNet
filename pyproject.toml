@@ -9,3 +9,8 @@ dependencies = ["deepreg", "euler-gpu", "juliacall>=0.9.24", "simpleitk>=2.4.1"]
 [tool.uv.sources]
 euler-gpu = { git = "https://github.com/lycantrope/euler_gpu" }
 deepreg = { git = "https://github.com/flavell-lab/DeepReg" }
+
+[dependency-groups]
+dev = [
+    "ipython>=9.0.1",
+]

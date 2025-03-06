@@ -224,6 +224,11 @@ dependencies = [
     { name = "simpleitk" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "ipython" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "deepreg", git = "https://github.com/flavell-lab/DeepReg" },
@@ -231,6 +236,9 @@ requires-dist = [
     { name = "juliacall", specifier = ">=0.9.24" },
     { name = "simpleitk", specifier = ">=2.4.1" },
 ]
+
+[package.metadata.requires-dev]
+dev = [{ name = "ipython", specifier = ">=9.0.1" }]
 
 [[package]]
 name = "cachetools"
