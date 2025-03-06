@@ -107,3 +107,4 @@ centroid_labeler.create_all_labels()
 ## usage
 
 *A demonstration of training and applying BrainAlignNet on unseen data is available [here](https://github.com/flavell-lab/BrainAlignNet/blob/main/demo_notebook/demo_network.ipynb)*.
+

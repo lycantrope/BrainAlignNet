@@ -2,7 +2,6 @@ import numpy as np
 
 
 def calculate_gncc(fixed, moving):
-
     mu_f = np.mean(fixed)
     mu_m = np.mean(moving)
     a = np.sum(abs(fixed - mu_f) * abs(moving - mu_m))
@@ -23,6 +22,6 @@ def calculate_ncc(fixed, moving):
     fixed_new = fixed_new / mu_f - 1
     moving_new = moving_new / mu_m - 1
     numerator = np.sum(fixed_new * moving_new)
-    denominator = np.sqrt(np.sum(fixed_new ** 2) * np.sum(moving_new ** 2))
+    denominator = np.sqrt(np.sum(fixed_new**2) * np.sum(moving_new**2))
 
     return numerator / denominator

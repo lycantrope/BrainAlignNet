@@ -1,33 +1,34 @@
-from deepreg.callback import build_checkpoint_callback
-from deepreg.registry import REGISTRY
-from deepreg.util import build_dataset
 import deepreg.model.optimizer as opt
 import deepreg.train as train
 import tensorflow as tf
+from deepreg.callback import build_checkpoint_callback
+from deepreg.registry import REGISTRY
+from deepreg.util import build_dataset
 
 
 def set_GPU(device):
-    gpus = tf.config.list_physical_devices('GPU')
+    gpus = tf.config.list_physical_devices("GPU")
     if gpus:
         try:
-            tf.config.set_visible_devices(gpus[device], 'GPU')
+            tf.config.set_visible_devices(gpus[device], "GPU")
         except RuntimeError as e:
             print(e)
 
 
 def fit_deepreg(
-        config_path: str,
-        log_dir: str,
-        experiment_name: str,
-        max_epochs: int,
-        initial_epoch: int,
-        ckpt_path: str = ""):
-    """ Fit deepreg model.
+    config_path: str,
+    log_dir: str,
+    experiment_name: str,
+    max_epochs: int,
+    initial_epoch: int,
+    ckpt_path: str = "",
+):
+    """Fit deepreg model.
 
     Args:
         config_path (str): Path to network configuration file.
         log_dir (str): Directory where the results will be saved.
-        experiment_name (str): DeepReg automatically creates a folder titled 
+        experiment_name (str): DeepReg automatically creates a folder titled
             'experiment_name' under 'log_dir'.
         max_epochs (int): Maximum number of epochs for training.
         initial_epoch (int): Epoch where training starts.
@@ -61,8 +62,8 @@ def fit_deepreg(
             name=config["train"]["method"],
             moving_image_size=data_loader_train.moving_image_shape,
             fixed_image_size=data_loader_train.fixed_image_shape,
-            moving_label_size=(200,3),
-            fixed_label_size=(200,3),
+            moving_label_size=(200, 3),
+            fixed_label_size=(200, 3),
             index_size=data_loader_train.num_indices,
             labeled=config["dataset"]["train"]["labeled"],
             batch_size=config["train"]["preprocess"]["batch_size"],
@@ -95,4 +96,3 @@ def fit_deepreg(
         validation_steps=steps_per_epoch_val,
         callbacks=callbacks,
     )
-

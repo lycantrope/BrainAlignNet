@@ -3,17 +3,18 @@
 # https://github.com/flavell-lab/DeepReg/deepreg/loss
 # The code is used under the MIT License.
 from typing import Tuple
+
+import benchmark_utils as utils
 import numpy as np
 import tensorflow as tf
-import benchmark_utils as utils
 
 EPS = 1.0e-5
+
 
 ######################
 ##### Label loss #####
 ######################
 class CentroidDistScore(tf.keras.losses.Loss):
-
     def __init__(
         self,
         smooth_nr: float = EPS,
@@ -52,13 +53,16 @@ class CentroidDistScore(tf.keras.losses.Loss):
         mask = tf.math.logical_or(mask_true, mask_pred)
 
         mask_expanded = tf.expand_dims(mask, axis=-1)
-        displacement = tf.where(mask_expanded, 0.0, y_pred - tf.cast(y_true, tf.float32))
+        displacement = tf.where(
+            mask_expanded, 0.0, y_pred - tf.cast(y_true, tf.float32)
+        )
         distance = tf.norm(displacement, axis=-1)
 
-        return (tf.reduce_sum(distance, axis=-1) + \
-                self.smooth_nr) / (tf.reduce_sum(
-                    1.0 - tf.cast(mask, dtype=tf.float32),
-                    axis=-1) + self.smooth_dr)
+        return (tf.reduce_sum(distance, axis=-1) + self.smooth_nr) / (
+            tf.reduce_sum(1.0 - tf.cast(mask, dtype=tf.float32), axis=-1)
+            + self.smooth_dr
+        )
+
 
 ######################
 ##### Image loss #####
@@ -143,11 +147,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
             * self.kernel[None, None, :]
         )
 
-    def calc_ncc(
-        self,
-        y_true: tf.Tensor,
-        y_pred: tf.Tensor
-    ) -> tf.Tensor:
+    def calc_ncc(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
         Return NCC for a batch.
 
@@ -197,11 +197,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
         return ncc
 
-    def call(
-        self,
-        y_true: tf.Tensor,
-        y_pred: tf.Tensor
-    ) -> tf.Tensor:
+    def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
         Return loss for a batch.
 
@@ -258,11 +254,7 @@ class GlobalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         """
         super().__init__(name=name, **kwargs)
 
-    def call(
-        self,
-        y_true: tf.Tensor,
-        y_pred: tf.Tensor
-    ) -> tf.Tensor:
+    def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
         Return loss for a batch.
 
@@ -300,7 +292,7 @@ class NonRigidPenalty(tf.keras.layers.Layer):
         img_size: Tuple[int, int, int] = (0, 0, 0),
         l1: bool = False,
         name: str = "NonRigidPenalty",
-        **kwargs
+        **kwargs,
     ):
         """
         Init.
@@ -314,17 +306,19 @@ class NonRigidPenalty(tf.keras.layers.Layer):
         self.l1 = l1
 
         # Assert that img_size has been changed from the default value
-        assert img_size != (0, 0, 0), "img_size must be set to a value other than (0, 0, 0)"
+        assert img_size != (
+            0,
+            0,
+            0,
+        ), "img_size must be set to a value other than (0, 0, 0)"
 
         self.img_size = img_size
-        grid_ref = tf.expand_dims(utils.get_reference_grid(grid_size=self.img_size), axis=0)
+        grid_ref = tf.expand_dims(
+            utils.get_reference_grid(grid_size=self.img_size), axis=0
+        )
         self.ddf_ref = -grid_ref
 
-    def call(
-        self,
-        inputs: tf.Tensor,
-        **kwargs
-    ) -> tf.Tensor:
+    def call(self, inputs: tf.Tensor, **kwargs) -> tf.Tensor:
         """
         Return a scalar loss.
 
@@ -340,25 +334,22 @@ class NonRigidPenalty(tf.keras.layers.Layer):
         dfdy = utils.gradient_dxyz(ddf - self.ddf_ref, utils.gradient_dy)
         dfdz = utils.gradient_dxyz(ddf - self.ddf_ref, utils.gradient_dz)
         if self.l1:
-            norms = tf.abs(utils.stable_f(tf.abs(dfdx) + tf.abs(dfdy) + tf.abs(dfdz)) - 2.0)
+            norms = tf.abs(
+                utils.stable_f(tf.abs(dfdx) + tf.abs(dfdy) + tf.abs(dfdz)) - 2.0
+            )
         else:
-            norms = tf.abs(utils.stable_f(dfdx ** 2 + dfdy ** 2 + dfdz ** 2) - 2.0)
+            norms = tf.abs(utils.stable_f(dfdx**2 + dfdy**2 + dfdz**2) - 2.0)
         return tf.reduce_mean(norms, axis=[1, 2, 3, 4])
 
 
 class DifferenceNorm(tf.keras.layers.Layer):
-
     """
     Calculate the average displacement of a pixel in the image, using taxicab metric.
 
     y_true and y_pred have to be at least 5d tensor, including batch axis.
     """
-    def __init__(
-        self,
-        l1: bool = False,
-        name: str = "DifferenceNorm",
-        **kwargs
-    ):
+
+    def __init__(self, l1: bool = False, name: str = "DifferenceNorm", **kwargs):
         """
         Init.
 
@@ -369,10 +360,7 @@ class DifferenceNorm(tf.keras.layers.Layer):
         super().__init__(name=name)
         self.l1 = l1
 
-    def call(
-        self,
-        inputs: tf.Tensor,
-    **kwargs) -> tf.Tensor:
+    def call(self, inputs: tf.Tensor, **kwargs) -> tf.Tensor:
         """
         Return a scalar loss.
 
@@ -387,7 +375,7 @@ class DifferenceNorm(tf.keras.layers.Layer):
         if self.l1:
             norms = tf.abs(ddf)
         else:
-            norms = ddf ** 2
+            norms = ddf**2
         return tf.reduce_mean(norms, axis=[1, 2, 3, 4])
 
 
@@ -396,7 +384,9 @@ def calculate_ncc(moving, fixed):
     Computes the NCC (Normalized Cross-Correlation) of two image arrays
     `moving` and `fixed` corresponding to a registration.
     """
-    assert fixed.shape == moving.shape, "Fixed and moving images must have the same shape."
+    assert (
+        fixed.shape == moving.shape
+    ), "Fixed and moving images must have the same shape."
 
     med_f = np.median(np.max(fixed, axis=2))
     med_m = np.median(np.max(moving, axis=2))
@@ -411,7 +401,6 @@ def calculate_ncc(moving, fixed):
     moving_new = (moving_new / mu_m) - 1
 
     numerator = np.sum(fixed_new * moving_new)
-    denominator = np.sqrt(np.sum(fixed_new ** 2) * np.sum(moving_new ** 2))
+    denominator = np.sqrt(np.sum(fixed_new**2) * np.sum(moving_new**2))
 
     return numerator / denominator
-

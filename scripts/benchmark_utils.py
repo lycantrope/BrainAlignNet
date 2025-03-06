@@ -2,15 +2,13 @@
 # on GitHub. The original implementation can be found at:
 # https://github.com/flavell-lab/DeepReg/deepreg/loss
 # The code is used under the MIT License.
-from typing import Callable, List, Tuple, Union
 import math
+from typing import Callable, List, Tuple, Union
+
 import tensorflow as tf
 
 
-def get_reference_grid(
-        grid_size: Union[Tuple[int, ...], 
-        List[int]]
-    ) -> tf.Tensor:
+def get_reference_grid(grid_size: Union[Tuple[int, ...], List[int]]) -> tf.Tensor:
     """
     Generate a 3D grid with given size.
 
@@ -64,7 +62,7 @@ def gaussian_kernel1d(kernel_size: int) -> tf.Tensor:
     sigma = kernel_size / 3
 
     grid = tf.range(0, kernel_size, dtype=tf.float32)
-    filters = tf.exp(-tf.square(grid - mean) / (2 * sigma ** 2))
+    filters = tf.exp(-tf.square(grid - mean) / (2 * sigma**2))
 
     return filters
 
@@ -131,7 +129,7 @@ def separable_filter(tensor: tf.Tensor, kernel: tf.Tensor) -> tf.Tensor:
     """
     strides = [1, 1, 1, 1, 1]
     kernel = tf.cast(kernel, dtype=tensor.dtype)
-    print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+    print("Num GPUs Available: ", len(tf.config.list_physical_devices("GPU")))
     tensor = tf.nn.conv3d(
         tf.nn.conv3d(
             tf.nn.conv3d(
@@ -215,4 +213,3 @@ def stable_f(x, min_value=1e-6):
     """
     x_clamped = tf.clip_by_value(x, min_value, tf.float32.max)
     return x_clamped + 1.0 / x_clamped
-
